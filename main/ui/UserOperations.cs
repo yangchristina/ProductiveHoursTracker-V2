@@ -156,7 +156,7 @@ public class UserOperations
                     entry.EditLevel(level);
                     break;
                 case "time":
-                    DateTime time = input.Time();
+                    TimeSpan time = input.Time();
                     entry.EditTime(time);
                     break;
             }
@@ -182,13 +182,14 @@ public class UserOperations
     {
         try
         {
-            JsonWriter writer = new JsonWriter(user.GetId().ToString());
-
-            writer.Open();
-            writer.Write(user);
-            writer.Close();
-
-            wasSaved = true;
+            // TODO
+            // JsonWriter writer = new JsonWriter(user.GetId().ToString());
+            //
+            // writer.Open();
+            // writer.Write(user);
+            // writer.Close();
+            //
+            // wasSaved = true;
         }
         catch (IOException)
         {
@@ -218,8 +219,8 @@ public class UserOperations
     // EFFECTS: shows the user's peak hours for either focus, energy, or motivation, depending on the user's input
     private void ShowPeakHours()
     {
-        string label = input.EntryType();
-        List<DateTime> peakHours = user.ProductivityLog.DailyAverageLog.GetPeaksAndTroughs(label)["peak"];
+        ProductivityEntry.Label label = input.EntryType();
+        List<TimeSpan> peakHours = user.ProductivityLog.DailyAverageLog.GetPeaksAndTroughs(label)["peak"];
         if (peakHours.Count == 0)
         {
             Console.WriteLine("Not enough " + label + " entries");
@@ -233,8 +234,8 @@ public class UserOperations
     // EFFECTS: shows the user's trough hours for either focus, energy, or motivation, depending on the user's input
     private void ShowTroughHours()
     {
-        string label = input.EntryType();
-        List<DateTime> troughHours = user.GetPeaksAndTroughs(label)["trough"];
+        ProductivityEntry.Label label = input.EntryType();
+        List<TimeSpan> troughHours = user.ProductivityLog.DailyAverageLog.GetPeaksAndTroughs(label)["trough"];
         if (troughHours.Count == 0)
         {
             Console.WriteLine("Not enough " + label + " entries");
@@ -248,24 +249,25 @@ public class UserOperations
     // EFFECTS: shows the user log indicated by the input options, by calling a method depending on the input
     private void ProcessShowEntries()
     {
-        List<string> options = new List<string> { "all", "energy", "focus", "motivation" };
-
-        string entryType = input.ValidateInput(options);
-        switch (entryType)
-        {
-            case "all":
-                ShowAllEntries();
-                break;
-            case "energy":
-                ShowAllEnergyEntries();
-                break;
-            case "focus":
-                ShowAllFocusEntries();
-                break;
-            case "motivation":
-                ShowAllMotivationEntries();
-                break;
-        }
+        ShowAllEntries();
+        // List<string> options = new List<string> { "all", "energy", "focus", "motivation" };
+        //
+        // string entryType = input.ValidateInput(options);
+        // switch (entryType)
+        // {
+        //     case "all":
+        //         ShowAllEntries();
+        //         break;
+        //     case "energy":
+        //         ShowAllEnergyEntries();
+        //         break;
+        //     case "focus":
+        //         ShowAllFocusEntries();
+        //         break;
+        //     case "motivation":
+        //         ShowAllMotivationEntries();
+        //         break;
+        // }
     }
 
     // EFFECTS: prints out the given list for the user to see
@@ -276,11 +278,11 @@ public class UserOperations
             return;
         }
 
-        Console.WriteLine(productivityEntries[0].Label() + " entries:");
+        Console.WriteLine(productivityEntries[0].GetLabel() + " entries:");
         int key = 1;
         foreach (ProductivityEntry entry in productivityEntries)
         {
-            Console.WriteLine(entry.Description(key));
+            Console.WriteLine(entry);
             key++;
         }
     }
@@ -289,119 +291,15 @@ public class UserOperations
     private void ShowAllEntries()
     {
         Console.WriteLine("Your entries are: ");
-        ShowAllEnergyEntries();
-        ShowAllFocusEntries();
-        ShowAllMotivationEntries();
+        ShowAllEntries();
+        // ShowAllEnergyEntries();
+        // ShowAllFocusEntries();
+        // ShowAllMotivationEntries();
         Console.WriteLine();
     }
-
-    // EFFECTS: shows details for all energy logs
-    private void ShowAllEnergyEntries()
-    {
-        ShowEntries(user.GetEnergyEntries());
-    }
-
-    // EFFECTS: shows details for all focus logs
-    private void ShowAllFocusEntries()
-    {
-        ShowEntries(user.GetFocusEntries());
-    }
-
-    // EFFECTS: shows details for all motivation logs
-    private void ShowAllMotivationEntries()
-    {
-        ShowEntries(user.GetMotivationEntries());
-    }
-
+    
     public bool WasSaved()
     {
         return wasSaved;
-    }
-}
-
-public class UserScanner
-{
-    public string ValidateInput(List<string> options)
-    {
-        while (true)
-        {
-            string input = Console.ReadLine().Trim().ToLower();
-            if (options.Contains(input))
-            {
-                return input;
-            }
-
-            Console.WriteLine("Invalid input. Please try again.");
-        }
-    }
-
-    public int Level(string label)
-    {
-        while (true)
-        {
-            Console.WriteLine("Enter " + label + " level (1-10):");
-            if (int.TryParse(Console.ReadLine(), out int level) && level >= 1 && level <= 10)
-            {
-                return level;
-            }
-
-            Console.WriteLine("Invalid input. Please enter a number between 1 and 10.");
-        }
-    }
-
-    public int ItemKey()
-    {
-        while (true)
-        {
-            Console.WriteLine("Enter item key:");
-            if (int.TryParse(Console.ReadLine(), out int key) && key > 0)
-            {
-                return key;
-            }
-
-            Console.WriteLine("Invalid input. Please enter a valid item key.");
-        }
-    }
-
-    public TimeSpan Time()
-    {
-        while (true)
-        {
-            Console.WriteLine("Enter time (HH:MM):");
-            if (DateTime.TryParse(Console.ReadLine(), out DateTime time))
-            {
-                return time.TimeOfDay;
-            }
-
-            Console.WriteLine("Invalid input. Please enter time in HH:MM format.");
-        }
-    }
-
-    public bool YesOrNo()
-    {
-        while (true)
-        {
-            Console.WriteLine("Enter yes or no:");
-            string input = Console.ReadLine().Trim().ToLower();
-            if (input == "yes")
-            {
-                return true;
-            }
-            else if (input == "no")
-            {
-                return false;
-            }
-
-            Console.WriteLine("Invalid input. Please enter yes or no.");
-        }
-    }
-
-    public ProductivityEntry.Label EntryType()
-    {
-        List<string> options = new List<string> { "energy", "focus", "motivation" };
-        Console.WriteLine("Enter entry type (energy, focus, motivation):");
-        string input = ValidateInput(options);
-        ProductivityEntry.Label.TryParse(input, true, out ProductivityEntry.Label entry);
-        return entry;
     }
 }

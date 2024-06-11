@@ -1,6 +1,6 @@
 namespace ProductiveHoursTracker.ui;
 
-public class UserListScanner
+public class UserListScanner : ScannerOperations
 {
     public string Name()
     {

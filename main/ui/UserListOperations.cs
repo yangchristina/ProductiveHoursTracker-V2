@@ -1,37 +1,40 @@
 namespace ProductiveHoursTracker.ui;
 
+using ProductiveHoursTracker.model;
+using ProductiveHoursTracker.model.exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using model; // Assuming model folder contains User.cs, UserList.cs, exceptions
 
+// calls user list methods through console inputs
 public class UserListOperations
 {
     private static readonly List<string> OPS = new List<string>() { "register", "login", "show users", "quit" };
 
     private UserList users;
     private UserListScanner input;
-    private Scanner scanner;
 
+    // EFFECTS: constructs an empty user list and initializes scanner and UserListScanner
     public UserListOperations()
     {
-        scanner = new Scanner(Console.In);
-
-        JsonReadUserList reader = new JsonReadUserList();
+        // JsonReadUserList reader = new JsonReadUserList();
         try
         {
-            users = new UserList(reader.Read()); // Read data here
+            // TODO
+            users = new UserList([]); // Read data here
         }
         catch (IOException e)
         {
-            // Maybe write something here?  // Consider logging the error
-            // When does this happen? Shouldn't data/users.json always exist? (Handle potential missing file)
+            // Maybe write some message
+            // Consider logging the exception for debugging
         }
 
-        input = new UserListScanner(scanner);
+        input = new UserListScanner(); // Use Console instead of Scanner
         processOperations();
     }
 
+    // MODIFIES: this
+    // EFFECTS: processes operations input by users
     private void processOperations()
     {
         while (true)
@@ -43,7 +46,7 @@ public class UserListOperations
                 case "quit":
                     return;
                 case "register":
-                    user = registerUser();
+                    user = registerUser(); // ask again
                     break;
                 case "login":
                     user = loginUser();
@@ -52,16 +55,16 @@ public class UserListOperations
                     listUsers();
                     continue;
             }
-
             startSessionIfUserValid(user);
         }
     }
 
+    // EFFECTS: if user is not null, starts the session for the user. After session, if user was saved, save user list
     private void startSessionIfUserValid(User user)
     {
         if (user != null)
         {
-            UserOperations operationRecord = new UserOperations(user, scanner);
+            UserOperations operationRecord = new UserOperations(user); // Use Console instead of Scanner
             if (operationRecord.WasSaved())
             {
                 save();
@@ -69,7 +72,10 @@ public class UserListOperations
         }
     }
 
-    public User registerUser()
+    // REQUIRES: user is not yet in user list, name is not the empty string
+    // MODIFIES: this
+    // EFFECTS: adds user to end of user list
+    public User registerUser() // Put in UserList
     {
         string name = input.Name();
         User user = new User(name);
@@ -83,10 +89,10 @@ public class UserListOperations
             Console.WriteLine("User already exists");
             Console.WriteLine();
         }
-
         return user;
     }
 
+    // EFFECTS: returns user with the given name, or null if there are no users with name in user list
     public User loginUser()
     {
         string name = input.Name();
@@ -95,14 +101,15 @@ public class UserListOperations
         {
             return users.LoadUser(name);
         }
-        catch (InvalidUserException e)
+        catch (InvalidUserException e) // Create this exception
         {
             Console.WriteLine("User not found");
             return null;
         }
     }
 
-    public void listUsers()
+    // EFFECTS: lists all users in list
+    public void listUsers() // Put in UserList
     {
         Console.WriteLine("\nThe users are: ");
 
@@ -114,19 +121,21 @@ public class UserListOperations
         Console.WriteLine();
     }
 
+    // EFFECTS: saves user list to file
     public void save()
     {
         try
         {
-            JsonWriter writer = new JsonWriter("users.json");
-
-            writer.Open();
-            writer.Write(users);
-            writer.Close();
+            // TODO
+            // JsonWriter writer = new JsonWriter("users");
+            //
+            // writer.Open();
+            // writer.Write(users);
+            // writer.Close();
         }
         catch (IOException e)
         {
-            Console.WriteLine("An error occurred while saving the data."); // More informative message
+            Console.WriteLine("An error occurred during saving");
         }
     }
 }

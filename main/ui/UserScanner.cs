@@ -1,6 +1,8 @@
+using ProductiveHoursTracker.model;
+using ProductiveHoursTracker.ui;
 using ProductiveHoursTracker.ui.exceptions;
 
-public class UserScanner
+public class UserScanner : ScannerOperations
 {
     private ConsoleKeyInfo _keyInfo;
 
@@ -40,7 +42,7 @@ public class UserScanner
     }
 
     // EFFECTS: returns the key value of an entry
-    public string EntryType()
+    public ProductivityEntry.Label EntryType()
     {
         while (true)
         {
@@ -48,7 +50,8 @@ public class UserScanner
             string label = Console.ReadLine().ToLower();
             if (label == "energy" || label == "focus" || label == "motivation")
             {
-                return label;
+                ProductivityEntry.Label.TryParse(label, true, out ProductivityEntry.Label entry);
+                return entry;
             }
             Console.WriteLine("Invalid entry. Please try again");
             Console.WriteLine();

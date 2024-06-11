@@ -18,11 +18,9 @@ public class ScannerOperations
             {
                 return input;
             }
-            else
-            {
-                Console.WriteLine("Invalid input. Please try again.");
-                Console.WriteLine();
-            }
+
+            Console.WriteLine("Invalid input. Please try again.");
+            Console.WriteLine();
         }
     }
 
