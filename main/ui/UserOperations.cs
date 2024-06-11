@@ -1,3 +1,6 @@
+using System.Data;
+using ClosedXML.Excel;
+
 namespace ProductiveHoursTracker.ui;
 
 using System;
@@ -9,8 +12,9 @@ public class UserOperations
 {
     private static readonly List<string> OPS = new List<string>
     {
-        "logout", "add", "peak", "trough", "show", "edit", "delete", "save", "help"
+        "logout", "add", "peak", "trough", "show", "edit", "delete", "export", "save", "help"
     };
+
     private readonly persistence.MySqlConnector _sqlConnector;
 
     private User user;
@@ -46,7 +50,6 @@ public class UserOperations
             switch (operation)
             {
                 case "logout":
-                    PromptSave();
                     return;
                 case "add":
                     AddEntries();
@@ -66,8 +69,8 @@ public class UserOperations
                 case "delete":
                     RemoveEntry();
                     break;
-                case "save":
-                    Save();
+                case "export":
+                    PromptExcel();
                     break;
                 case "help":
                     Console.WriteLine("logout, add, peak, show, edit, delete, save, help");
@@ -86,13 +89,14 @@ public class UserOperations
         TimeSpan localTime = DateTime.Now.TimeOfDay;
 
         int energyLevel = input.Level("energy");
-        var energyEntry = new ProductivityEntry(ProductivityEntry.Label.Energy,localDateTime, localTime, energyLevel);
+        var energyEntry = new ProductivityEntry(ProductivityEntry.Label.Energy, localDateTime, localTime, energyLevel);
 
         int focusLevel = input.Level("focus");
         var focusEntry = new ProductivityEntry(ProductivityEntry.Label.Focus, localDateTime, localTime, focusLevel);
 
         int motivationLevel = input.Level("motivation");
-        var motivationEntry = new ProductivityEntry(ProductivityEntry.Label.Motivation, localDateTime, localTime, motivationLevel);
+        var motivationEntry =
+            new ProductivityEntry(ProductivityEntry.Label.Motivation, localDateTime, localTime, motivationLevel);
 
         user.ProductivityLog.Add(energyEntry);
         user.ProductivityLog.Add(focusEntry);
@@ -116,7 +120,7 @@ public class UserOperations
             string category = input.ValidateInput(options);
             Console.WriteLine(category);
             int key = input.ItemKey();
-            
+
             try
             {
                 switch (category)
@@ -125,8 +129,8 @@ public class UserOperations
                     case "focus":
                     case "motivation":
                         return user.ProductivityLog.Entries[key - 1];
-                        // return user.GetFocusEntries()[key - 1];
-                        // return user.GetMotivationEntries()[key - 1];
+                    // return user.GetFocusEntries()[key - 1];
+                    // return user.GetMotivationEntries()[key - 1];
                     default:
                         return null;
                 }
@@ -174,7 +178,7 @@ public class UserOperations
         Console.WriteLine("Operation: remove");
         ProductivityEntry entry = SelectEntry();
         // bool isRemoved = 
-         double? removal = user.ProductivityLog.Remove(entry);
+        double? removal = user.ProductivityLog.Remove(entry);
         if (removal == null)
         {
             Console.WriteLine("Removed " + entry);
@@ -182,36 +186,69 @@ public class UserOperations
     }
 
     // EFFECTS: saves user to file
-    public void Save()
+    public void DownloadExcel()
     {
         try
         {
-            _sqlConnector.LoadUser(user.Name);
-            
-            wasSaved = true;
+            var entries = user.ProductivityLog.Entries;
+
+            Dictionary<ProductivityEntry.Label, DataTable>
+                tables = new Dictionary<ProductivityEntry.Label, DataTable>();
+            ProductivityEntry.Label[] labels = Enum.GetValues<ProductivityEntry.Label>();
+            foreach (var labelE in labels)
+            {
+                tables.Add(labelE, new DataTable());
+                tables[labelE].Columns.Add("Time", typeof(string));
+                tables[labelE].Columns.Add("Level", typeof(int));
+            }
+
+            var averageLog = user.ProductivityLog.DailyAverageLog.Log;
+            foreach (var mapSet in averageLog)
+            {
+                ProductivityEntry.Label label = mapSet.Key;
+                foreach (var pair in mapSet.Value)
+                {
+                    tables[label].Rows.Add(pair.Key.ToString(), pair.Value);
+                }
+            }
+
+            var wb = new XLWorkbook();
+            var ws = wb.Worksheets.Add("Data_Test_Worksheet");
+            int spacing = 2;
+            for (int i = 0; i < labels.Length; i++)
+            {
+                var label = labels[i];
+                ws.Cell(1, i*spacing+1).Value = label.ToString();
+                ws.Cell(2, i*spacing+1).Value = "Time";
+                ws.Cell(2, i*spacing+2).Value = "Level";
+                ws.Cell(3, i*spacing+1).InsertData(tables[label]);
+            }
+            wb.SaveAs("/Users/christinayang/Downloads/Productive_Hours.xlsx");
+            Console.WriteLine("Downloaded!");
         }
-        catch (IOException)
+        catch (Exception e)
         {
+            Console.WriteLine(e);
             // idk what yet, shouldn't ever be thrown because no illegal file names, all filenames are uuid
         }
     }
 
     // asks user if they would like to save their session
     // EFFECTS: if user inputs true, save session, if false don't save, else ask again
-    private void PromptSave()
+    private void PromptExcel()
     {
-        Console.WriteLine("Would you like to save?");
+        Console.WriteLine("Would you like to download excel spreadsheet?");
         try
         {
             bool ans = input.YesOrNo();
             if (ans)
             {
-                Save();
+                DownloadExcel();
             }
         }
         catch (InvalidInputException)
         {
-            PromptSave();
+            PromptExcel();
         }
     }
 
@@ -292,10 +329,5 @@ public class UserOperations
         Console.WriteLine("Your entries are: ");
         ShowEntries(user.ProductivityLog.Entries);
         Console.WriteLine();
-    }
-    
-    public bool WasSaved()
-    {
-        return wasSaved;
     }
 }

@@ -2,5 +2,5 @@
 
 using ProductiveHoursTracker.ui;
 
-Console.WriteLine("Hello, World!");
+// Console.WriteLine("Hello, World!");
 new UserListOperations();

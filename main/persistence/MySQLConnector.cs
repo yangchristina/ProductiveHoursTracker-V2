@@ -39,7 +39,6 @@ public class MySqlConnector
                     string? name = reader["name"].ToString();
                     if (id == null || name == null) throw new InvalidUserException();
                     var userId = Guid.Parse(id);
-                    Console.WriteLine("read userlist name " + name);
                     userList.Add(name, userId);
                 }
 

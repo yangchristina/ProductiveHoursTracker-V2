@@ -32,7 +32,6 @@ public class UserListOperations
             // Maybe write some message
             // Consider logging the exception for debugging
         }
-        Console.WriteLine(users.Size());
         input = new UserListScanner(); // Use Console instead of Scanner
         processOperations();
     }
