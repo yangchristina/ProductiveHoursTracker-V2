@@ -20,11 +20,12 @@ public class UserListOperations
         // JsonReadUserList reader = new JsonReadUserList();
         try
         {
-            // TODO
-            users = new UserList([]); // Read data here
+            users = new persistence.MySqlConnector().GetUserList();
         }
         catch (IOException e)
         {
+            // TODO better error handling
+            users = new UserList();
             // Maybe write some message
             // Consider logging the exception for debugging
         }
