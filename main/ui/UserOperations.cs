@@ -288,10 +288,7 @@ public class UserOperations
     private void ShowAllEntries()
     {
         Console.WriteLine("Your entries are: ");
-        ShowAllEntries();
-        // ShowAllEnergyEntries();
-        // ShowAllFocusEntries();
-        // ShowAllMotivationEntries();
+        ShowEntries(user.ProductivityLog.Entries);
         Console.WriteLine();
     }
     

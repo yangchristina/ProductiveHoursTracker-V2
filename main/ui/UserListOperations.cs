@@ -13,20 +13,22 @@ public class UserListOperations
 
     private UserList users;
     private UserListScanner input;
+    private readonly persistence.MySqlConnector _sqlConnector;
 
     // EFFECTS: constructs an empty user list and initializes scanner and UserListScanner
     public UserListOperations()
     {
+        _sqlConnector = new persistence.MySqlConnector();
         // JsonReadUserList reader = new JsonReadUserList();
         try
         {
-            users = new persistence.MySqlConnector().GetUserList();
+            users = _sqlConnector.GetUserList();
         }
         catch (IOException e)
         {
             // TODO better error handling
             Console.WriteLine(e);
-            users = new UserList();
+            users = new UserList(_sqlConnector);
             // Maybe write some message
             // Consider logging the exception for debugging
         }

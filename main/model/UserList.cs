@@ -10,9 +10,10 @@ public class UserList
     private readonly Dictionary<string, Guid> _users;
     private readonly persistence.MySqlConnector _sqlConnector;
     
-    public UserList()
+    public UserList(persistence.MySqlConnector sqlConnector)
     {
-        _sqlConnector = new persistence.MySqlConnector();
+        _sqlConnector = sqlConnector;
+            // new persistence.MySqlConnector();
         _users = new Dictionary<string, Guid>();
     }
     

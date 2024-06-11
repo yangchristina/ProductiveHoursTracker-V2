@@ -17,12 +17,12 @@ public class MySqlConnector
 
     public MySqlConnector()
     {
-        _connection = new MySqlConnection(ConnectionString);
+        // _connection = new MySqlConnection(ConnectionString);
     }
 
     public UserList GetUserList()
     {
-        using (_connection)
+        using (_connection = new MySqlConnection(ConnectionString))
         {
             _connection.Open();
 
@@ -30,7 +30,7 @@ public class MySqlConnector
             string query = "SELECT * FROM Users";
             using (var command = new MySqlCommand(query, _connection))
             {
-                UserList userList = new UserList();
+                UserList userList = new UserList(this);
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())
@@ -50,7 +50,7 @@ public class MySqlConnector
 
     public void SaveUser(User user)
     {
-        using (_connection)
+        using (_connection = new MySqlConnection(ConnectionString))
         {
             _connection.Open();
 
@@ -94,28 +94,30 @@ public class MySqlConnector
 
     public User LoadUser(string name)
     {
-        using (_connection)
+        using (_connection = new MySqlConnection(ConnectionString))
         {
             _connection.Open();
             Guid userId;
             string nameQuery =
                 "SELECT * FROM Users WHERE name = @name"; // Select only needed columns if performance is critical
-            using (var command = new MySqlCommand(nameQuery, _connection))
+            var ucommand = new MySqlCommand(nameQuery, _connection);
+            // {
+            
+            ucommand.Parameters.AddWithValue("@name", name);
+            var ureader = ucommand.ExecuteReader();
+            if (ureader.Read())
             {
-                command.Parameters.AddWithValue("@name", name);
-                var reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    string? id = reader["user_id"].ToString();
-                    if (id == null) throw new InvalidUserException();
-                    userId = Guid.Parse(id);
-                }
-                else
-                {
-                    throw new InvalidUserException();
-                }
+                string? id = ureader["user_id"].ToString();
+                if (id == null) throw new InvalidUserException();
+                userId = Guid.Parse(id);
             }
+            else
+            {
+                throw new InvalidUserException();
+            }
+            _connection.Close();
 
+            _connection.Open();
             List<ProductivityEntry> entries = new List<ProductivityEntry>();
 
             string query =
@@ -135,9 +137,9 @@ public class MySqlConnector
                         reader.GetInt32("level")
                     ));
                 }
-            }
 
-            return new User(name, userId, entries);
+                return new User(name, userId, entries);
+            }
         }
     }
 }
