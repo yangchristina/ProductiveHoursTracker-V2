@@ -11,6 +11,7 @@ public class UserOperations
     {
         "logout", "add", "peak", "trough", "show", "edit", "delete", "save", "help"
     };
+    private readonly persistence.MySqlConnector _sqlConnector;
 
     private User user;
     private UserScanner input;
@@ -19,6 +20,7 @@ public class UserOperations
     // EFFECTS: constructs a UserOperations with a given user and a UserScanner
     public UserOperations(User user)
     {
+        _sqlConnector = new persistence.MySqlConnector();
         this.user = user;
         input = new UserScanner();
         wasSaved = false;
@@ -182,14 +184,9 @@ public class UserOperations
     {
         try
         {
-            // TODO
-            // JsonWriter writer = new JsonWriter(user.GetId().ToString());
-            //
-            // writer.Open();
-            // writer.Write(user);
-            // writer.Close();
-            //
-            // wasSaved = true;
+            _sqlConnector.LoadUser(user.Name);
+            
+            wasSaved = true;
         }
         catch (IOException)
         {

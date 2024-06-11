@@ -25,11 +25,12 @@ public class UserListOperations
         catch (IOException e)
         {
             // TODO better error handling
+            Console.WriteLine(e);
             users = new UserList();
             // Maybe write some message
             // Consider logging the exception for debugging
         }
-
+        Console.WriteLine(users.Size());
         input = new UserListScanner(); // Use Console instead of Scanner
         processOperations();
     }
@@ -66,10 +67,10 @@ public class UserListOperations
         if (user != null)
         {
             UserOperations operationRecord = new UserOperations(user); // Use Console instead of Scanner
-            if (operationRecord.WasSaved())
-            {
-                save();
-            }
+            // if (operationRecord.WasSaved())
+            // {
+            //     save();
+            // }
         }
     }
 
@@ -122,21 +123,20 @@ public class UserListOperations
         Console.WriteLine();
     }
 
-    // EFFECTS: saves user list to file
-    public void save()
-    {
-        try
-        {
-            // TODO
-            // JsonWriter writer = new JsonWriter("users");
-            //
-            // writer.Open();
-            // writer.Write(users);
-            // writer.Close();
-        }
-        catch (IOException e)
-        {
-            Console.WriteLine("An error occurred during saving");
-        }
-    }
+    // // EFFECTS: saves user list to file
+    // public void save()
+    // {
+    //     try
+    //     {
+    //         // JsonWriter writer = new JsonWriter("users");
+    //         //
+    //         // writer.Open();
+    //         // writer.Write(users);
+    //         // writer.Close();
+    //     }
+    //     catch (IOException e)
+    //     {
+    //         Console.WriteLine("An error occurred during saving");
+    //     }
+    // }
 }

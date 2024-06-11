@@ -6,13 +6,18 @@ namespace ProductiveHoursTracker.persistence;
 
 public class MySqlConnector
 {
-    private const string ConnectionString = "jdbc:mysql://localhost:3306/";
-    private MySqlConnection _connection;
+    private readonly string ConnectionString = $"server={Environment.GetEnvironmentVariable("MYSQL_HOST")};" +
+                                               $"port=3306;" +
+                                               $"UserId={Environment.GetEnvironmentVariable("MYSQL_USERNAME")};" +
+                                               $"Password={Environment.GetEnvironmentVariable("MYSQL_PASSWORD")};" +
+                                               $"Database={Environment.GetEnvironmentVariable("MYSQL_DATABASE")};";
+
+    // private const string ConnectionString = "jdbc:mysql://localhost:3306/";
+    private static MySqlConnection _connection;
 
     public MySqlConnector()
     {
         _connection = new MySqlConnection(ConnectionString);
-        // new MySqlConnection($"Server={server};User ID={userID};Password={password};Database={database}"))
     }
 
     public UserList GetUserList()
@@ -20,12 +25,12 @@ public class MySqlConnector
         using (_connection)
         {
             _connection.Open();
-            UserList userList = new UserList();
 
 
             string query = "SELECT * FROM Users";
             using (var command = new MySqlCommand(query, _connection))
             {
+                UserList userList = new UserList();
                 var reader = command.ExecuteReader();
 
                 while (reader.Read())
@@ -34,6 +39,7 @@ public class MySqlConnector
                     string? name = reader["name"].ToString();
                     if (id == null || name == null) throw new InvalidUserException();
                     var userId = Guid.Parse(id);
+                    Console.WriteLine("read userlist name " + name);
                     userList.Add(name, userId);
                 }
 
@@ -55,7 +61,7 @@ public class MySqlConnector
                 "INSERT INTO Users (user_id, name) VALUES (@userId, @name) ON DUPLICATE KEY UPDATE name = @name";
             using (var insertCommand = new MySqlCommand(userInsertQuery, _connection))
             {
-                insertCommand.Parameters.AddWithValue("@userId", user.Id);
+                insertCommand.Parameters.AddWithValue("@userId", user.Id.ToString());
                 insertCommand.Parameters.AddWithValue("@name", user.Name);
                 insertCommand.ExecuteNonQuery();
             }
@@ -100,7 +106,7 @@ public class MySqlConnector
                 var reader = command.ExecuteReader();
                 if (reader.Read())
                 {
-                    string? id = reader["id"].ToString();
+                    string? id = reader["user_id"].ToString();
                     if (id == null) throw new InvalidUserException();
                     userId = Guid.Parse(id);
                 }
