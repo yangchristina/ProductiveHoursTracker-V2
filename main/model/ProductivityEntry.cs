@@ -7,62 +7,51 @@ public class ProductivityEntry : Subject, Writable
 {
     public enum Label
     {
-        ENERGY,
-        FOCUS,
-        MOTIVATION
+        Energy,
+        Focus,
+        Motivation
     }
     
     private readonly DateTime date;
-    private TimeSpan time;
-    protected int level;
-    private Label label;
+    private TimeSpan _time;
+    public int Level { get; private set; }
+    private Label _label;
     
     // EFFECTS: creates a new productivity entry with given values for label, date, time and level
     public ProductivityEntry(Label label, DateTime date, TimeSpan time, int level)
     {
-        this.label = label;
+        _label = label;
         this.date = date; // cannot be modified
-        this.time = time;
-        this.level = level;
+        _time = time;
+        Level = level;
     }
     
     // EFFECTS: returns a string with a description of the entry
     public override string ToString()
     {
-        return $"{GetLabel()} level of {level} at {time} on {date.ToShortDateString()}.";
+        return $"{GetLabel()} level of {Level} at {_time} on {date.ToShortDateString()}.";
     }
     
     // EFFECTS: calls setter methods to edit productivity entry
     public void Edit(Label label, TimeSpan time, int level)
     {
-        var old = new ProductivityEntry(this.label, this.date, this.time, this.level);
+        var old = new ProductivityEntry(this._label, this.date, this._time, this.Level);
 
-        this.label = label;
-        this.time = time;
-        this.level = level;
+        this._label = label;
+        this._time = time;
+        Level = level;
 
         base.NotifyObservers(this, old);
     }
 
     public Label GetLabel()
     {
-        return label;
+        return _label;
     }
-
-    public DateTime GetDate()
-    {
-        return date;
-    }
-
-    public TimeSpan GetTime()
-    {
-        return time;
-    }
-
-    public int GetLevel()
-    {
-        return level;
-    }
+    
+    public DateTime Date => date;
+    
+    public TimeSpan Time => _time;
 
     public JsonObject ToJson()
     {
@@ -70,8 +59,8 @@ public class ProductivityEntry : Subject, Writable
         {
             { "label", GetLabel().ToString() },
             { "date", date.ToString("yyyy-MM-dd") },
-            { "time", time.ToString() },
-            { "level", level }
+            { "time", _time.ToString() },
+            { "level", Level }
         };
         return json;
     }

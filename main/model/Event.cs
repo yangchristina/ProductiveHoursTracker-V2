@@ -23,17 +23,9 @@ public class Event
      * Gets the date of this event (includes time).
      * @return  the date of the event
      */
-    public DateTime GetDate() {
-        return dateLogged;
-    }
-
-    /**
-     * Gets the description of this event.
-     * @return  the description of the event
-     */
-    public String GetDescription() {
-        return description;
-    }
+    public DateTime Date => dateLogged;
+    
+    public String Description => description;
 
     public override bool Equals(object other)
     {
@@ -49,8 +41,8 @@ public class Event
 
         Event otherEvent = (Event) other;
 
-        return (this.dateLogged.Equals(otherEvent.dateLogged)
-                && this.description.Equals(otherEvent.description));
+        return (dateLogged.Equals(otherEvent.dateLogged)
+                && description.Equals(otherEvent.description));
     }
     
     public override int GetHashCode()
@@ -59,6 +51,6 @@ public class Event
     }
 
     public override string ToString() {
-        return dateLogged.ToString(CultureInfo.InvariantCulture) + "\n" + description;
+        return dateLogged.ToString("g") + "\n" + description;
     }
 }

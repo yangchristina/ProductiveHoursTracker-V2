@@ -2,22 +2,22 @@ namespace ProductiveHoursTracker.model;
 
 public class DailyAverageLog
 {
-    private Dictionary<ProductivityEntry.Label, SortedDictionary<TimeSpan, double>> averageLog;
-    private Dictionary<ProductivityEntry.Label, int[]> counts;
+    private Dictionary<ProductivityEntry.Label, int[]> _counts;
+    public Dictionary<ProductivityEntry.Label, SortedDictionary<TimeSpan, double>> Log { get; }
 
     // EFFECTS: constructs DailyAverageLog with an empty counts and an empty averageLog
     public DailyAverageLog()
     {
-        counts = CreateEmptyCounts();
-        averageLog = CreateEmptyLog();
+        _counts = CreateEmptyCounts();
+        Log = CreateEmptyLog();
     }
 
     // EFFECTS: constructs DailyAverageLog with a given list of productivity entries,
     //          and a log of levels by time of day, which is calculated from the productivity entries
     public DailyAverageLog(List<ProductivityEntry> entries)
     {
-        counts = CreateEmptyCounts();
-        averageLog = CreateEmptyLog();
+        _counts = CreateEmptyCounts();
+        Log = CreateEmptyLog();
         InitAverageLog(entries);
     }
 
@@ -58,16 +58,16 @@ public class DailyAverageLog
     // EFFECTS: adds the level of entry to the average for the time of the entry
     public double Add(ProductivityEntry entry)
     {
-        TimeSpan time = entry.GetTime();
-        int level = entry.GetLevel();
+        TimeSpan time = entry.Time;
+        int level = entry.Level;
         ProductivityEntry.Label label = entry.GetLabel();
 
         double oldAverage;
-        averageLog[label].TryGetValue(time, out oldAverage);
+        Log[label].TryGetValue(time, out oldAverage);
         double newAverage;
 
-        int newCount = ++counts[label][time.Hours];
-        if (averageLog[label].ContainsKey(time))
+        int newCount = ++_counts[label][time.Hours];
+        if (Log[label].ContainsKey(time))
         {
             newAverage = oldAverage + ((level - oldAverage) / newCount);
         }
@@ -76,7 +76,7 @@ public class DailyAverageLog
             newAverage = level;
         }
 
-        averageLog[label][time] = newAverage;
+        Log[label][time] = newAverage;
         return newAverage;
     }
 
@@ -85,27 +85,22 @@ public class DailyAverageLog
     // EFFECTS: updates the log for the removal of this entry, by calculating the new average after removing this entry
     public double? Remove(ProductivityEntry entry)
     {
-        TimeSpan time = entry.GetTime();
-        int level = entry.GetLevel();
+        TimeSpan time = entry.Time;
+        int level = entry.Level;
         ProductivityEntry.Label label = entry.GetLabel();
 
-        double oldAverage = averageLog[label][time];
-        int newCount = --counts[label][time.Hours];
+        double oldAverage = Log[label][time];
+        int newCount = --_counts[label][time.Hours];
 
         double newAverage;
         if (newCount == 0)
         {
-            averageLog[label].Remove(time);
+            Log[label].Remove(time);
             return null;
         }
 
         newAverage = oldAverage + (oldAverage - level) / newCount;
-        averageLog[label][time] = newAverage;
+        Log[label][time] = newAverage;
         return newAverage;
-    }
-
-    public Dictionary<ProductivityEntry.Label, SortedDictionary<TimeSpan, double>> GetLog()
-    {
-        return averageLog;
     }
 }

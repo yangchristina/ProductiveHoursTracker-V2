@@ -43,7 +43,7 @@ public sealed class EventLog : IEnumerable<Event>
     /**
      * Clears the event log and logs the event.
      */
-    public void clear() {
+    public void Clear() {
         events.Clear();
         LogEvent(new Event("Event log cleared."));
     }
