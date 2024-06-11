@@ -1,6 +1,6 @@
 # Productive hours tracker
 
-Converted [yangchristina/productive-hours-tracker](https://github.com/yangchristina/productive-hours-tracker) from Java to C#, changed it back to a console application, and extended to use MySQL instead of JSON for data storage.
+Converted [yangchristina/productive-hours-tracker](https://github.com/yangchristina/productive-hours-tracker) from Java to C#, changed it back to a console application, and extended to use MySQL instead of JSON for data storage, and allow exporting data to an Excel spreadsheet.
 
 ## Track your energy, focus, and motivational levels throughout the day
 
