@@ -103,4 +103,38 @@ public class DailyAverageLog
         Log[label][time] = newAverage;
         return newAverage;
     }
+    
+// EFFECTS: gets peaks and troughs of a certain entry type
+    public Dictionary<string, List<TimeSpan>> GetPeaksAndTroughs(ProductivityEntry.Label entryType)
+    {
+        Dictionary<string, List<TimeSpan>> peaksAndTroughs = new Dictionary<string, List<TimeSpan>>();
+
+        List<TimeSpan> peakHours = new List<TimeSpan>();
+        List<TimeSpan> troughHours = new List<TimeSpan>();
+
+        KeyValuePair<TimeSpan, double>? left = null;
+        KeyValuePair<TimeSpan, double>? curr = null;
+
+        foreach (KeyValuePair<TimeSpan, double> right in Log[entryType])
+        {
+            if (left != null && curr != null)
+            {
+                if (curr.Value.Value < left.Value.Value && curr.Value.Value < right.Value)
+                {
+                    troughHours.Add(curr.Value.Key);
+                }
+                else if (curr.Value.Value > left.Value.Value && curr.Value.Value > right.Value)
+                {
+                    peakHours.Add(curr.Value.Key);
+                }
+                // ignoring equals case /--\ and \__/ and edge cases, ex. \____
+            }
+            left = curr;
+            curr = right;
+        }
+
+        peaksAndTroughs.Add("peak", peakHours);
+        peaksAndTroughs.Add("trough", troughHours);
+        return peaksAndTroughs;
+    }
 }

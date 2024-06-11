@@ -37,11 +37,27 @@ public class ProductivityEntry : Subject, Writable
     {
         var old = new ProductivityEntry(this._label, this.date, this._time, this.Level);
 
-        this._label = label;
-        this._time = time;
+        _label = label;
+        _time = time;
         Level = level;
 
-        base.NotifyObservers(this, old);
+        NotifyObservers(this, old);
+    }
+    
+    public void EditLevel(int level)
+    {
+        var old = new ProductivityEntry(this._label, this.date, this._time, this.Level);
+        Level = level;
+
+        NotifyObservers(this, old);
+    }
+    
+    public void EditTime(TimeSpan time)
+    {
+        var old = new ProductivityEntry(this._label, this.date, this._time, this.Level);
+        _time = time;
+
+        NotifyObservers(this, old);
     }
 
     public Label GetLabel()

@@ -5,15 +5,22 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GenerateProgramFile>false</GenerateProgramFile>
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="main\" />
+      <Folder Include="test\persistence\" />
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+      <PackageReference Include="MySqlConnector" Version="2.3.7" />
       <PackageReference Include="NUnit" Version="4.1.0" />
+      <PackageReference Include="System.Drawing.Common" Version="9.0.0-preview.4.24267.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="main\persistence\MySQLReader.cs" />
     </ItemGroup>
 
 </Project>
