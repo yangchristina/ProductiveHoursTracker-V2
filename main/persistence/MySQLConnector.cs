@@ -47,6 +47,27 @@ public class MySqlConnector
             }
         }
     }
+    
+    public void SaveEntry(User user, ProductivityEntry entry)
+    {
+        using (_connection = new MySqlConnection(ConnectionString))
+        {
+            _connection.Open();
+            
+            // Insert User record (if it doesn't exist)
+            string userInsertQuery =
+                "INSERT INTO Entries (user_id, date, time, label, level) VALUES (@userId, @date, @time, @label, @level) ON DUPLICATE KEY UPDATE level = @level";
+            using (var insertCommand = new MySqlCommand(userInsertQuery, _connection))
+            {
+                insertCommand.Parameters.AddWithValue("@userId", user.Id.ToString());
+                insertCommand.Parameters.AddWithValue("@date", entry.Date);
+                insertCommand.Parameters.AddWithValue("@time", entry.Time.ToString());
+                insertCommand.Parameters.AddWithValue("@label", entry.GetLabel().ToString());
+                insertCommand.Parameters.AddWithValue("@level", entry.Level);
+                insertCommand.ExecuteNonQuery();
+            }
+        }
+    }
 
     public void SaveUser(User user)
     {
@@ -65,30 +86,30 @@ public class MySqlConnector
                 insertCommand.Parameters.AddWithValue("@name", user.Name);
                 insertCommand.ExecuteNonQuery();
             }
-
-            // Clear existing entries for the user (prevents duplicates)
-            string deleteEntriesQuery = "DELETE FROM Entries WHERE user_id = @userId";
-            using (var deleteCommand = new MySqlCommand(deleteEntriesQuery, _connection))
-            {
-                deleteCommand.Parameters.AddWithValue("@userId", user.Id);
-                deleteCommand.ExecuteNonQuery();
-            }
-
-            // Insert each productivity entry
-            foreach (var entry in entries)
-            {
-                string entryInsertQuery =
-                    "INSERT INTO Entries (user_id, date, time, label, level) VALUES (@userId, @date, @time, @label, @level)";
-                using (var insertCommand = new MySqlCommand(entryInsertQuery, _connection))
-                {
-                    insertCommand.Parameters.AddWithValue("@userId", user.Id);
-                    insertCommand.Parameters.AddWithValue("@date", entry.Date);
-                    insertCommand.Parameters.AddWithValue("@time", entry.Time);
-                    insertCommand.Parameters.AddWithValue("@label", entry.GetLabel());
-                    insertCommand.Parameters.AddWithValue("@level", entry.Level);
-                    insertCommand.ExecuteNonQuery();
-                }
-            }
+        //
+        //     // Clear existing entries for the user (prevents duplicates)
+        //     string deleteEntriesQuery = "DELETE FROM Entries WHERE user_id = @userId";
+        //     using (var deleteCommand = new MySqlCommand(deleteEntriesQuery, _connection))
+        //     {
+        //         deleteCommand.Parameters.AddWithValue("@userId", user.Id);
+        //         deleteCommand.ExecuteNonQuery();
+        //     }
+        //
+        //     // Insert each productivity entry
+        //     foreach (var entry in entries)
+        //     {
+        //         string entryInsertQuery =
+        //             "INSERT INTO Entries (user_id, date, time, label, level) VALUES (@userId, @date, @time, @label, @level)";
+        //         using (var insertCommand = new MySqlCommand(entryInsertQuery, _connection))
+        //         {
+        //             insertCommand.Parameters.AddWithValue("@userId", user.Id);
+        //             insertCommand.Parameters.AddWithValue("@date", entry.Date);
+        //             insertCommand.Parameters.AddWithValue("@time", entry.Time);
+        //             insertCommand.Parameters.AddWithValue("@label", entry.GetLabel());
+        //             insertCommand.Parameters.AddWithValue("@level", entry.Level);
+        //             insertCommand.ExecuteNonQuery();
+        //         }
+        //     }
         }
     }
 

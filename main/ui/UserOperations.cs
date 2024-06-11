@@ -95,13 +95,15 @@ public class UserOperations
         var motivationEntry = new ProductivityEntry(ProductivityEntry.Label.Motivation, localDateTime, localTime, motivationLevel);
 
         user.ProductivityLog.Add(energyEntry);
-        user.ProductivityLog.Add(energyEntry);
         user.ProductivityLog.Add(focusEntry);
         user.ProductivityLog.Add(motivationEntry);
 
         Console.WriteLine("You have added " + energyEntry);
         Console.WriteLine("You have added " + focusEntry);
         Console.WriteLine("You have added " + motivationEntry);
+        _sqlConnector.SaveEntry(user, energyEntry);
+        _sqlConnector.SaveEntry(user, focusEntry);
+        _sqlConnector.SaveEntry(user, motivationEntry);
     }
 
     // EFFECTS: selects an entry based on category and key input by user
