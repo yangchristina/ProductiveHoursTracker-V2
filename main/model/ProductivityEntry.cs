@@ -3,7 +3,7 @@ using ProductiveHoursTracker.persistence;
 
 namespace ProductiveHoursTracker.model;
 
-public class ProductivityEntry : Subject, Writable
+public class ProductivityEntry : Subject
 {
     public enum Label
     {
@@ -68,16 +68,4 @@ public class ProductivityEntry : Subject, Writable
     public DateTime Date => date;
     
     public TimeSpan Time => _time;
-
-    public JsonObject ToJson()
-    {
-        var json = new JsonObject
-        {
-            { "label", GetLabel().ToString() },
-            { "date", date.ToString("yyyy-MM-dd") },
-            { "time", _time.ToString() },
-            { "level", Level }
-        };
-        return json;
-    }
 }

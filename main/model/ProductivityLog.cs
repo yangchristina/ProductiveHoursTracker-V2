@@ -3,7 +3,7 @@ using ProductiveHoursTracker.persistence;
 
 namespace ProductiveHoursTracker.model;
 
-public class ProductivityLog : Writable, Observer
+public class ProductivityLog : Observer
 {
     private readonly DailyAverageLog _dailyAverageLog;
     public User User { get; }
@@ -44,19 +44,6 @@ public class ProductivityLog : Writable, Observer
     }
     
     public DailyAverageLog DailyAverageLog => _dailyAverageLog;
-
-    public JsonObject ToJson()
-    {
-        JsonArray jsonArray = new JsonArray();
-        foreach (var entry in Entries)
-        {
-            jsonArray.Add(entry.ToJson());
-        }
-
-        JsonObject json = new JsonObject();
-        json.Add("entries", jsonArray);
-        return json;
-    }
 
     public void Update(ProductivityEntry curr, ProductivityEntry prev)
     {

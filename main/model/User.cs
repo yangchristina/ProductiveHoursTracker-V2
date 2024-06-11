@@ -3,7 +3,7 @@ using ProductiveHoursTracker.persistence;
 
 namespace ProductiveHoursTracker.model;
 
-public class User : Writable
+public class User
 {
     private string _name;
     private Guid _id;
@@ -26,12 +26,4 @@ public class User : Writable
     public string Name => _name;
     public Guid Id => _id;
     public ProductivityLog ProductivityLog => _productivityLog;
-    
-    public JsonObject ToJson()
-    {
-        JsonObject json = _productivityLog.ToJson();
-        json.Add("name", _name);
-        json.Add("id", _id);
-        return json;
-    }
 }
